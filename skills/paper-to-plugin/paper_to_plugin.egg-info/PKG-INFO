@@ -1,0 +1,32 @@
+Metadata-Version: 2.4
+Name: paper-to-plugin
+Version: 0.1.0
+Summary: A skill to analyze research papers and generate plugin code.
+Author: Your Name
+Author-email: your.email@example.com
+Description-Content-Type: text/markdown
+Requires-Dist: Jinja2
+Requires-Dist: requests
+Requires-Dist: PyMuPDF
+Dynamic: author
+Dynamic: author-email
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: requires-dist
+Dynamic: summary
+
+# Paper-to-Plugin Skill
+
+This skill analyzes a research paper, extracts key innovations, and generates a Python plugin package based on them.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+```bash
+paper-to-plugin <path_or_url_to_paper> --output-dir <directory_for_generated_plugin>
+```

@@ -1,0 +1,2 @@
+[console_scripts]
+paper-to-plugin = skills.paper_to_plugin.cli.main:main

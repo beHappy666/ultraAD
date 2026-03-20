@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(pytest:*)",
+      "Bash(python:*)",
+      "WebSearch",
+      "WebFetch(domain:arxiv.org)"
+    ]
+  }
+}

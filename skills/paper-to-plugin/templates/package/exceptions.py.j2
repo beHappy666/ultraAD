@@ -1,0 +1,11 @@
+"""
+Custom exceptions for {{ package_name }}.
+"""
+
+class {{ plugin_class_name }}Error(Exception):
+    """Base exception for the plugin."""
+    pass
+
+class ProcessingError({{ plugin_class_name }}Error):
+    """Raised when data processing fails."""
+    pass

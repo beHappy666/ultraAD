@@ -1,0 +1,30 @@
+from .core import {{ innovation_logic_class_name }}
+from .types import {{ input_type }}, {{ output_type }}
+# This is a placeholder for the actual VAD base class
+# from vad.plugins import BaseVADPlugin
+from typing import Any
+
+class BaseVADPlugin:
+    def run(self, *args: Any, **kwargs: Any) -> Any:
+        raise NotImplementedError
+
+class {{ plugin_class_name }}(BaseVADPlugin):
+    """
+    {{ description }}
+    """
+
+    def __init__(self, config: dict = None):
+        self.config = config or {}
+        self.innovation = {{ innovation_logic_class_name }}(**self.config.get('core', {}))
+
+    def run(self, data: {{ input_type }}) -> {{ output_type }}:
+        """
+        Processes the input data through the innovation core logic.
+        """
+        # Pre-processing can be added here
+        processed_data = self.innovation.apply(data)
+        # Post-processing can be added here
+        return processed_data
+
+    def get_name(self) -> str:
+        return "{{ package_name }}"

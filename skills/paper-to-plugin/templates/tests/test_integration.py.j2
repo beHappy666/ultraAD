@@ -1,0 +1,10 @@
+import pytest
+from {{ package_name }}.plugin import {{ plugin_class_name }}
+
+
+def test_{{ plugin_class_name.lower() }}_integration(sample_fixture):
+    """Test the full plugin integration."""
+    # This is a placeholder for a real integration test.
+    # It might involve setting up a mock environment or using real data.
+    plugin = {{ plugin_class_name }}()
+    assert plugin.get_name() == "{{ package_name }}"

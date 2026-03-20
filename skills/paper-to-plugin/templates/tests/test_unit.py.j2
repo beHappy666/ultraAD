@@ -1,0 +1,17 @@
+import pytest
+from {{ package_name }}.core import {{ innovation_logic_class_name }}
+from {{ package_name }}.types import {{ input_type }}, {{ output_type }}
+
+
+def test_{{ innovation_logic_class_name.lower() }}_initialization():
+    """Test initialization of the core logic class."""
+    core_logic = {{ innovation_logic_class_name }}()
+    assert core_logic is not None
+
+def test_{{ innovation_logic_class_name.lower() }}_apply(sample_fixture):
+    """Test the apply method of the core logic."""
+    core_logic = {{ innovation_logic_class_name }}()
+    input_data = {{ input_type }}(data={})
+    output = core_logic.apply(input_data)
+    assert isinstance(output, {{ output_type }})
+    # Add more specific assertions based on expected behavior
