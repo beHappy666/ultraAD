@@ -7,9 +7,8 @@ ultraAD 是基于 VAD (Vectorized Scene Representation) 的企业级端到端自
 ## 核心特性
 
 - **统一配置管理** - 基于 Python dataclass 的类型安全配置系统
-- **现代化 CLI** - 统一的命令行工具链 (ultraad train/debug/studio/doctor/init)
+- **现代化 CLI** - 统一的命令行工具链 (ultraad train/debug/doctor/init)
 - **AI 智能诊断** - 自动检测训练问题并提供修复建议
-- **Web 可视化** - 基于 Web 的交互式调试和监控平台
 - **智能训练引擎** - 支持混合精度、早停、自动恢复等高级功能
 
 ## 项目结构
@@ -113,21 +112,6 @@ ultraad doctor -w
 ultraad doctor -l work_dirs/exp1/20240101.log --auto-fix
 ```
 
-### 7. Web Studio
-
-```bash
-# 启动 Web 界面
-ultraad studio
-
-# 指定端口
-ultraad studio -p 8888
-
-# 开发模式（热重载）
-ultraad studio --reload
-```
-
-访问 http://localhost:8080 查看 Web 界面。
-
 ## CLI 命令参考
 
 ```bash
@@ -138,7 +122,6 @@ ultraad init <project_name>       # 初始化新项目
 ultraad train <config> [options]  # 启动训练
 ultraad debug <config> [options]  # 单样本调试
 ultraad doctor [options]          # AI 诊断
-ultraad studio [options]          # Web Studio
 ultraad info                      # 显示系统信息
 ```
 

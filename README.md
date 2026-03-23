@@ -9,9 +9,8 @@
 ## 核心特性
 
 - **统一配置管理** - 基于 Python dataclass 的类型安全配置系统
-- **现代化 CLI** - 统一的命令行工具链 (train/debug/studio/doctor/init)
+- **现代化 CLI** - 统一的命令行工具链 (train/debug/doctor/init)
 - **AI 智能诊断** - 自动检测训练问题并提供修复建议
-- **Web 可视化** - 基于 Web 的交互式调试和监控平台
 - **智能训练引擎** - 支持混合精度、早停、自动恢复等高级功能
 
 ## 项目结构
@@ -23,7 +22,6 @@ ultraAD/
 │   │   ├── main.py            # 主入口
 │   │   ├── train.py           # 训练命令
 │   │   ├── debug.py           # 调试命令
-│   │   ├── studio.py          # Web Studio
 │   │   └── doctor.py          # AI 诊断
 │   ├── core/                  # 核心模块
 │   │   ├── config.py          # 配置管理
@@ -34,10 +32,6 @@ ultraAD/
 │   ├── core.py                # 诊断引擎
 │   └── diagnosers.py          # 专业诊断器
 │
-├── web/                       # Web 平台
-│   ├── backend/               # FastAPI 后端
-│   └── frontend/              # React 前端
-│
 ├── third_party/VAD/           # VAD 源码
 ├── configs/                   # 配置文件
 ├── debug_tools/               # 调试工具 (旧)
@@ -47,18 +41,42 @@ ultraAD/
 
 ## 快速开始
 
+### 🚀 一键式：从论文到报告
+
+```bash
+# 安装依赖
+pip install -r requirements.txt
+
+# 一键运行：从论文自动生成实验报告
+ultraad paper-to-report arxiv:2301.xxxxx
+
+# 或使用本地 PDF
+ultraad paper-to-report path/to/paper.pdf
+```
+
+系统会自动完成：
+1. 📄 解析论文
+2. ✉️ 提取创新点
+3. 💻 生成代码
+4. 🔌 集成到 VAD
+5. ▶️ 运行基线和实验
+6. 📊 对比性能
+7. 📋 生成报告（HTML/MD/JSON）
+
+### 常规使用
+
 ### 1. 环境配置
 
 ```bash
 # 安装基础依赖
-pip install rich click omegaconf fastapi uvicorn
+pip install -r requirements.txt
 
 # 或使用脚本
 bash scripts/setup_env.sh
 conda activate vad_debug
 ```
 
-### 2. 初始化项目
+### 2. 初始化项目（可选）
 
 ```bash
 # 创建新项目
@@ -115,21 +133,6 @@ ultraad doctor -w
 ultraad doctor -l work_dirs/exp1/20240101.log --auto-fix
 ```
 
-### 7. Web Studio
-
-```bash
-# 启动 Web 界面
-ultraad studio
-
-# 指定端口
-ultraad studio -p 8888
-
-# 开发模式（热重载）
-ultraad studio --reload
-```
-
-访问 http://localhost:8080 查看 Web 界面。
-
 ## CLI 命令参考
 
 ```bash
@@ -140,7 +143,6 @@ ultraad init <project_name>       # 初始化新项目
 ultraad train <config> [options]  # 启动训练
 ultraad debug <config> [options]  # 单样本调试
 ultraad doctor [options]          # AI 诊断
-ultraad studio [options]          # Web Studio
 ultraad info                      # 显示系统信息
 ```
 
@@ -357,16 +359,6 @@ ultraad doctor -l work_dirs/exp1/latest.log
 # 实时监控
 ultraad doctor -w
 ```
-
-### Q: 如何启用 Web 可视化？
-
-A: 使用 `ultraad studio` 命令启动 Web 界面：
-
-```bash
-ultraad studio -p 8080
-```
-
-然后在浏览器访问 http://localhost:8080
 
 ### Q: 如何配置分布式训练？
 

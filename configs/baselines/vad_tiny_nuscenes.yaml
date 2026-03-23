@@ -1,0 +1,44 @@
+# VAD Tiny Baseline Configuration for nuScenes
+
+name: vad_tiny_baseline
+work_dir: work_dirs/baselines
+seed: 42
+
+model:
+  name: vad_tiny
+  backbone: resnet50
+  bev_h: 200
+  bev_w: 200
+  bev_embed_dim: 256
+  use_temporal: true
+  fut_ts: 6
+  fut_mode: 6
+
+data:
+  dataset: nuscenes
+  data_root: data/nuscenes
+  version: mini
+  batch_size: 1
+  num_workers: 0
+  pin_memory: true
+
+trainer:
+  max_epochs: 20
+  optimizer: adamw
+  lr: 2e-4
+  weight_decay: 0.01
+  scheduler: cosine
+  warmup_epochs: 2
+  warmup_lr: 2e-6
+  use_amp: true
+  grad_clip: 35.0
+  save_interval: 1
+  max_keep_ckpts: 3
+
+debug:
+  enabled: true
+  log_level: INFO
+  check_nan: true
+  check_inf: true
+  visualize_bev: true
+  enable_ai_doctor: false

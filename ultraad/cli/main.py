@@ -13,9 +13,8 @@ from rich import box
 
 from ultraad.cli.train import train_cmd
 from ultraad.cli.debug import debug_cmd
-from ultraad.cli.viz import viz_cmd
-from ultraad.cli.studio import studio_cmd
 from ultraad.cli.doctor import doctor_cmd
+from ultraad.cli.paper import paper_to_report_cmd
 
 console = Console()
 
@@ -60,9 +59,8 @@ def app(ctx, version):
 # Register subcommands
 app.add_command(train_cmd, name='train')
 app.add_command(debug_cmd, name='debug')
-app.add_command(viz_cmd, name='viz')
-app.add_command(studio_cmd, name='studio')
 app.add_command(doctor_cmd, name='doctor')
+app.add_command(paper_to_report_cmd, name='paper-to-report')
 
 
 @app.command('init')
