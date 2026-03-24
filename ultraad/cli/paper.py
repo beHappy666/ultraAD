@@ -26,7 +26,7 @@ def paper_to_report_cmd(paper_source, output_dir, baseline, epochs, gpu_id, no_b
     - arXiv ID: arxiv:2301.xxxxx
     - arXiv URL: https://arxiv.org/abs/2301.xxxxx
 
-    示例:
+    示例：
         ultraad paper-to-report arxiv:2301.xxxxx
         ultraad paper-to-report path/to/paper.pdf
         ultraad paper-to-report paper.pdf --baseline configs/baseline.yaml
@@ -39,10 +39,10 @@ def paper_to_report_cmd(paper_source, output_dir, baseline, epochs, gpu_id, no_b
 
     # 导入流水线
     try:
-        from ultraad.pipeline import.auto_pipeline
+        from ultraad.pipeline.auto_pipeline import AutoPipeline
     except ImportError as e:
         console.print(f"[red]导入流水线失败: {e}")
-        console.print("[yellow]请确保已安装必要依赖: pip install pymupdf requests[/]")
+        console.print("[yellow]请确保已安装必要依赖: pip install pym pymupdf requests[/]")
         sys.exit(1)
 
     # 检查论文源
@@ -58,7 +58,7 @@ def paper_to_report_cmd(paper_source, output_dir, baseline, epochs, gpu_id, no_b
 
     try:
         # 运行流水线
-        pipeline = auto_pipeline.AutoPipeline(
+        pipeline = AutoPipeline(
             output_dir=str(output_dir),
             gpu_id=gpu_id
         )

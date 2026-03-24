@@ -1,4 +1,7 @@
-"""SmartTrainer - Intelligent training engine for ultraAD."""
+"""SmartTrainer - Intelligent training engine for ultraAD.
+
+支持真实训练（需要 torch）和模拟模式。
+"""
 
 import os
 import sys
@@ -7,11 +10,6 @@ import json
 from typing import Dict, List, Optional, Callable, Any
 from pathlib import Path
 from dataclasses import dataclass
-
-import torch
-import torch.nn as nn
-from torch.utils.data import DataLoader
-from torch.cuda.amp import autocast, GradScaler
 
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
@@ -22,10 +20,23 @@ from ultraad.core.config import Config
 
 console = Console()
 
+# 检查 torch 是否可用
+try:
+    import torch
+    import torch.nn as nn
+    from torch.utils.data import DataLoader
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+    console.print("[yellow]torch 未安装，SmartTrainer 将以模拟模式运行[/]")
+
+if TORCH_AVAILABLE:
+    from torch.cuda.amp import autocast, GradScaler
+
 
 @dataclass
 class TrainingState:
-    """Current training state."""
+    """当前训练状态"""
     epoch: int
     step: int
     global_step: int
@@ -36,21 +47,29 @@ class TrainingState:
 
 
 class SmartTrainer:
-    """Intelligent training engine with auto-diagnosis and optimization."""
+    """智能训练引擎，支持真实和模拟模式"""
 
-    def __init__(self, config: Config):
-        """Initialize SmartTrainer.
+    def __init__(self, config: Config, use_mock: bool = False):
+        """
+        Initialize SmartTrainer.
 
         Args:
             config: Training configuration
+            use_mock: 强制使用模拟模式
         """
         self.config = config
+        self.use_mock = use_mock or not TORCH_AVAILABLE
+
+        if not TORCH_AVAILABLE:
+            console.print("[yellow]⚠️ torch 不可用，使用模拟训练模式[/]")
+            self.use_mock = True
+
         self.state = TrainingState(
             epoch=0,
             step=0,
             global_step=0,
             loss=0.0,
-            learning_rate=config.trainer.lr
+            learning_rate=config.trainer.lr if hasattr(config, 'trainer') else 2e-4
         )
 
         self.model = None
@@ -64,12 +83,13 @@ class SmartTrainer:
         self.early_stopping_patience = 5
 
         # Setup
-        self._setup_device()
-        self._setup_training()
+        if not self.use_mock:
+            self._setup_device()
+            self._setup_training()
 
         # AI Doctor integration
         self.ai_doctor = None
-        if config.debug.get('enable_ai_doctor', True):
+        if hasattr(config, 'debug') and config.debug.get('enable_ai_doctor', True):
             try:
                 from ai_doctor.core import AIDoctor
                 self.ai_doctor = AIDoctor()
@@ -79,6 +99,7 @@ class SmartTrainer:
 
     def _setup_device(self):
         """Setup training device."""
+        import torch
         if torch.cuda.is_available():
             self.device = torch.device(f'cuda:{self.config.gpu_ids[0]}' if self.config.gpu_ids else 'cuda:0')
             torch.cuda.set_device(self.device)
@@ -109,6 +130,9 @@ class SmartTrainer:
         Returns:
             Training history
         """
+        if self.use_mock:
+            return self._train_mock(epochs)
+
         # Use provided components or stored ones
         if model is not None:
             self.model = model.to(self.device)
@@ -197,6 +221,52 @@ class SmartTrainer:
         console.print(f"Best training loss: {min(history['train_loss']):.4f}")
         if history['val_loss']:
             console.print(f"Best validation loss: {min(history['val_loss']):.4f}")
+
+        return history
+
+    def _train_mock(self, epochs=None) -> Dict:
+        """运行模拟训练"""
+        import torch
+        console.print("[dim]运行模拟训练...[/]")
+
+        epochs = epochs or self.config.trainer.max_epochs
+
+        history = {
+            'train_loss': [],
+            'val_loss': [],
+            'learning_rate': [],
+            'epoch_times': []
+        }
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            console=console
+        ) as progress:
+            epoch_task = progress.add_task("Training (mock)...", total=epochs)
+
+            for epoch in range(epochs):
+                epoch_start_time = time.time()
+
+                progress.update(epoch_task, description=f"Epoch {epoch+1}/{epochs}")
+
+                # 模拟损失
+                train_loss = 0.5 - epoch * 0.02
+                val_loss = 0.55 - epoch * 0.018
+
+                history['train_loss'].append(train_loss)
+                history['val_loss'].append(val_loss)
+
+                progress.update(epoch_task, advance=1)
+
+                # Console output
+                console.print(f"Epoch {epoch+1}/{epochs} - Loss: {train_loss:.4f} - Val Loss: {val_loss:.4f}")
+
+        console.print(f"\n[bold green]Mock training complete![/]")
+        console.print(f"Best training loss: {min(history['train_loss']):.4f}")
+        console.print(f"Best validation loss: {min(history['val_loss']):.4f}")
 
         return history
 
@@ -328,6 +398,16 @@ class SmartTrainer:
 
     def save_checkpoint(self, path: str, **kwargs):
         """Save training checkpoint."""
+        if self.use_mock:
+            # 模拟检查点
+            with open(path, 'w') as f:
+                f.write(f"# Mock checkpoint\n")
+                f.write(f"epoch: {self.state.epoch}\n")
+                f.write(f"loss: {self.state.loss:.4f}\n")
+            console.print(f"[green]Mock checkpoint saved: {path}")
+            return
+
+        import torch
         checkpoint = {
             'epoch': self.state.epoch,
             'step': self.state.step,
@@ -351,8 +431,13 @@ class SmartTrainer:
 
     def resume_from(self, checkpoint_path: str):
         """Resume training from checkpoint."""
+        if self.use_mock:
+            console.print(f"[bold]Resuming from mock checkpoint: {checkpoint_path}")
+            return
+
         console.print(f"[bold]Resuming from: {checkpoint_path}")
 
+        import torch
         checkpoint = torch.load(checkpoint_path, map_location=self.device)
 
         # Restore model

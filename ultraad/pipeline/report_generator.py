@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 from rich.console import Console
+from typing import List
 
 from .types import PaperContent, Innovation, ComparisonResult, Report
 
@@ -52,7 +53,7 @@ class ReportGenerator:
         md_path = self._generate_markdown(report_id, paper, innovations, comparison)
 
         report = Report(
-            report_id=report_id,
+            report_id=reporter_id,
             paper=paper,
             innovations=innovations,
             comparison=comparison,
@@ -72,7 +73,7 @@ class ReportGenerator:
                      innovations: List[Innovation],
                      comparison: ComparisonResult) -> Path:
         """生成 HTML 报告"""
-        html_content = f'''<!DOCTYPE html>
+        html_content = f"""<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -160,7 +161,7 @@ class ReportGenerator:
         {self._html_summary(comparison)}
     </div>
 </body>
-</html>'''
+</html>"""
 
         output_path = self.output_dir / f"{report_id}.html"
         with open(output_path, 'w', encoding='utf-8') as f:
@@ -172,14 +173,14 @@ class ReportGenerator:
         """生成创新点 HTML"""
         html = ""
         for i, innovation in enumerate(innovations, 1):
-            html += f'''
+            html += f"""
             <div class="innovation-item">
                 <h3>{i}. {innovation.name}</h3>
                 <p>{innovation.description}</p>
                 <p><strong>类别:</strong> {innovation.category.value}</p>
                 <p><strong>可行性:</strong> {innovation.feasibility_score:.2f} | <strong>影响:</strong> {innovation.impact_score:.2f}</p>
             </div>
-            '''
+            """
         return html
 
     def _html_metrics_table(self, comparison: ComparisonResult) -> str:
@@ -188,31 +189,31 @@ class ReportGenerator:
 
         rows = []
         if comparison.baseline.metrics.mAP and comparison.experiment.metrics.mAP:
-            rows.append(('mAP', comparison.baseline.metrics.mAP,
-                        comparison.experiment.metrics.mAP, diff.mAP_delta, diff.mAP_pct))
+            rows.append(('mAP', comparison.bereline.metrics.mAP,
+                        comparison.experiment.metrics.mAP, diff.mAP_delta, diff.m.m_pct))
 
         if comparison.baseline.metrics.NDS and comparison.experiment.metrics.NDS:
-            rows.append(('NDS', comparison.baseline.metrics.NDS,
+            rows.append(('NDS', comparison.bereline.metrics.NDS,
                         comparison.experiment.metrics.NDS, diff.NDS_delta, diff.NDS_pct))
 
         if comparison.baseline.metrics.fps and comparison.experiment.metrics.fps:
-            rows.append(('FPS', comparison.baseline.metrics.fps,
+            rows.append(('FPS', comparison.bereline.metrics.fps,
                         comparison.experiment.metrics.fps, diff.fps_delta, diff.fps_pct))
 
         html = '<table><tr><th>指标</th><th>基线</th><th>实验</th><th>变化</th></tr>'
 
-        for name, baseline, exp, delta, pct in rows:
+        for name, bereline, exp, delta, pct in rows:
             change_class = 'positive' if delta > 0 else ('negative' if delta < 0 else 'neutral')
             change_str = f"{delta:+.4f} ({pct:+.1f}%)" if pct is not None else f"{delta:+.4f}"
 
-            html += f'''
+            html += f"""
             <tr>
                 <td><strong>{name}</strong></td>
-                <td>{baseline:.4f}</td>
-                <td>{exp:.4f}</td>
+                <td>{bereline:.4f}</td>
+                <td>{exp:.4.}</td>
                 <td class="{change_class}">{change_str}</td>
             </tr>
-            '''
+            """
 
         html += '</table>'
         return html
@@ -238,12 +239,12 @@ class ReportGenerator:
             is_positive = '+' in value
             color_class = 'positive' if is_positive else ('negative' if '-' in value else 'neutral')
 
-            html += f'''
+            html += f"""
             <div class="metric-card">
                 <div class="metric-value {color_class}">{value}</div>
                 <div class="metric-label">{title}</div>
             </div>
-            '''
+            """
 
         html += '</div>'
         return html
@@ -262,7 +263,7 @@ class ReportGenerator:
             'low': '较小'
         }
 
-        return f'''
+        return f"""
         <h2>📋 总结</h2>
         <div class="metric-card">
             <p><strong>总体评价:</strong> {improvement_map.get(comparison.overall_improvement, '未知')}</p>
@@ -276,7 +277,7 @@ class ReportGenerator:
                 实验: {comparison.experiment.metrics.gpu_memory_gb:.1f}GB
             </p>
         </div>
-        '''
+        """
 
     def _generate_json(self, report_id: str, paper: PaperContent,
                      innovations: List[Innovation],
@@ -320,17 +321,17 @@ class ReportGenerator:
                          innovations: List[Innovation],
                          comparison: ComparisonResult) -> Path:
         """生成 Markdown 报告"""
-        md_content = f'''# {paper.title} - 实验报告
+        md_content = f"""# {paper.title} - 实验报告
 
 **论文ID:** {paper.paper_id}
 **生成时间:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## 📝 创新点摘要
 
-'''
+"""
 
         for i, innovation in enumerate(innovations, 1):
-            md_content += f'''
+            md_content += f"""
 ### {i}. {innovation.name}
 
 {innovation.description}
@@ -339,14 +340,14 @@ class ReportGenerator:
 - **可行性:** {innovation.feasibility_score:.2f}
 - **影响:** {innovation.impact_score:.2f}
 
-'''
+"""
 
-        md_content += f'''
+        md_content += f"""
 ## 📊 性能对比
 
 | 指标 | 基线 | 实验 | 变化 |
 |------|------|------|------|
-'''
+"""
 
         diff = comparison.diff
 
@@ -359,7 +360,7 @@ class ReportGenerator:
         if comparison.baseline.metrics.fps:
             md_content += f"| FPS | {comparison.baseline.metrics.fps:.2f} | {comparison.experiment.metrics.fps:.2f} | {diff.fps_delta:+.2f} ({diff.fps_pct:+.1f}%) |\n"
 
-        md_content += f'''
+        md_content += f"""
 ## 📋 总结
 
 - **总体评价:** {comparison.overall_improvement}
@@ -368,7 +369,7 @@ class ReportGenerator:
 - **实验训练时间:** {comparison.experiment.metrics.training_time_hours:.1f}h
 - **基线显存:** {comparison.baseline.metrics.gpu_memory_gb:.1f}GB
 - **实验显存:** {comparison.experiment.metrics.gpu_memory_gb:.1f}GB
-'''
+"""
 
         output_path = self.output_dir / f"{report_id}.md"
         with open(output_path, 'w', encoding='utf-8') as f:

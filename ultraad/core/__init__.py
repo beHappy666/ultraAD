@@ -1,6 +1,6 @@
 """Core modules for ultraAD."""
 
 from .config import Config
-from .registry import Registry, build_from_cfg
+from .trainer import SmartTrainer
 
-__all__ = ["Config", "Registry", "build_from_cfg"]
+__all__ = ["Config", "SmartTrainer"]
